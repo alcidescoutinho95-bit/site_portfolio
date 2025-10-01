@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Projeto - Pipeline Uber NYC</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS -->
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body class="d-flex flex-column h-100 bg-light">
+
+<main class="flex-shrink-0">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+        <div class="container px-5">
+            <a class="navbar-brand" href="index.html"><span class="fw-bolder text-primary">Alcides G. Portfólio</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="resume.html">Currículo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html">Projetos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contato</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Título -->
+    <div class="container px-5 my-5">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bolder mb-0"><span class="text-gradient d-inline">Pipeline Uber NYC</span></h1>
+        </div>
+
+        <!-- Projeto -->
+        <div class="row gx-5 justify-content-center">
+            <div class="col-lg-11 col-xl-9 col-xxl-8">
+                <section>
+                    <div class="card shadow border-0 rounded-4 mb-5">
+                        <div class="card-body p-5">
+                            <div class="row gx-5">
+                                <div class="col-12">
+                                    <p>Esse projeto foi pensado para mostrar, na prática, como construir uma pipeline de dados completa, do zero até a entrega em data warehouses prontos para análise. O ponto de partida foi um dataset público do <strong>Kaggle</strong>, uma plataforma bastante conhecida por hospedar dados e competições de ciência de dados. O conjunto escolhido foi o <strong>"Uber Pickups in New York City"</strong>, que contém registros de corridas da Uber em Nova York, com informações como data, hora, latitude, longitude, entre outros.</p>
+
+                                    <p>Apesar do volume de dados e da riqueza de informações, os arquivos disponibilizados tinham várias tabelas — e nem todas com colunas úteis para este projeto. O foco foi nas tabelas que possuíam dados de <strong>localização geográfica (latitude e longitude)</strong>, porque a ideia era cruzar essas coordenadas com dados de regiões dos EUA (cidade, estado, condado, etc.).</p>
+
+                                    <p>Para fazer esse enriquecimento geográfico, utilizei os <strong>shapefiles oficiais do Censo Americano (Census Bureau)</strong>, disponíveis publicamente em <a href="https://www2.census.gov/geo/tiger/TIGER2023/COUNTY/tl_2023_us_county.zip" target="_blank">tl_2023_us_county.zip</a>. Com isso, foi possível mapear cada ponto da Uber para dentro de uma região geográfica mais legível, permitindo análises mais direcionadas.</p>
+                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                        <h5 class="text-primary fw-bolder mb-0">Objetivo do Projeto</h5>
+                                    </div>
+                                    <!-- <h5 class="fw-bold mt-4">Objetivo do Projeto</h5> -->
+                                    <p>O principal objetivo foi <strong>criar uma estrutura de data warehouses separados por tipo de transporte</strong> (quando identificado), com dados já tratados, enriquecidos e prontos para análises de negócios, visualizações ou aplicações analíticas.</p>
+                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                        <h5 class="text-primary fw-bolder mb-0">Stack e Ferramentas Utilizadas</h5>
+                                    </div>
+                                    <!-- <h5 class="fw-bold mt-4">Stack e Ferramentas Utilizadas</h5> -->
+                                    <ul>
+                                        <li><strong>Apache Spark:</strong> para processar os dados, fazer as transformações e os cruzamentos geográficos.</li>
+                                        <li><strong>MinIO:</strong> utilizado como armazenamento de objetos, simulando um bucket S3.</li>
+                                        <li><strong>PostgreSQL:</strong> banco de dados relacional para armazenamento final dos data warehouses.</li>
+                                        <li><strong>Docker + Docker Compose:</strong> para subir todos os serviços em containers locais.</li>
+                                    </ul>
+
+                                    <p>Ainda que o uso de Docker esteja mais associado à infraestrutura, acredito que dominar esse tipo de ferramenta dá ao engenheiro de dados mais agilidade e independência no dia a dia.</p>
+                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                        <h5 class="text-primary fw-bolder mb-0">Arquitetura da Pipeline - Modelo em Camadas (Medalhão)</h5>
+                                    </div>
+                                    <!-- <h5 class="fw-bold mt-4">Arquitetura da Pipeline - Modelo em Camadas (Medalhão)</h5> -->
+                                    <ul>
+                                        <li><strong>Raw:</strong> dados extraídos diretamente da fonte (Kaggle), armazenados no MinIO sem tratamento.</li>
+                                        <li><strong>Bronze:</strong> dados filtrados e convertidos para formato Parquet, mantendo apenas os arquivos com latitude e longitude.</li>
+                                        <li><strong>Silver:</strong> enriquecimento com os dados geográficos do Censo, associando cada ponto a cidade, condado e estado.</li>
+                                        <li><strong>Gold:</strong> união e agregação dos dados relevantes, separação por tipo de transporte e envio para o PostgreSQL.</li>
+                                    </ul>
+                                    <p class="mb-3">
+                                        Abaixo, é possível visualizar um fluxograma que representa a organização da pipeline, estruturada em camadas conforme o modelo em medalhão.
+                                    </p>
+                                    <div class="text-center mb-4">
+                                        <img class="img-fluid rounded shadow" src="assets/arquitetura_pipeline.png" alt="Arquitetura da pipeline Uber NYC">
+                                    </div>
+
+                                    <p class="mb-3">
+                                        A estrutura do projeto também foi pensada para manter a organização dos notebooks em camadas bem definidas, seguindo o modelo em medalhão. 
+                                        Cada etapa da pipeline (extração, tratamento, enriquecimento e carga) está separada em diretórios como <code>raw</code>, <code>bronze</code>, <code>silver</code> e <code>gold</code>, facilitando a manutenção, reprocessamento e entendimento do fluxo de dados.
+                                    </p>
+
+                                    <!-- Imagem do VS Code com diretórios organizados -->
+                                    <div class="text-center mb-4">
+                                        <img class="img-fluid rounded shadow" src="assets/vscode_pipeline_structure.png" alt="Estrutura de pastas no VS Code">
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                        <h5 class="text-primary fw-bolder mb-0">Aprendizados e Desafios</h5>
+                                    </div>
+                                    <!-- <h5 class="fw-bold mt-4">Aprendizados e Desafios</h5> -->
+                                    <p>Trabalhar com dados geoespaciais foi um dos pontos mais interessantes do projeto. Além das transformações comuns, foi preciso lidar com cruzamentos espaciais e garantir precisão na localização de cada registro. Outro ponto importante foi estruturar a pipeline de forma modular, facilitando reprocessamentos e manutenção.</p>
+
+                                    <p>Esse projeto também reforçou a importância de seguir boas práticas como versionamento, uso de camadas bem definidas e armazenamento eficiente dos dados intermediários.</p>
+                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                        <h5 class="text-primary fw-bolder mb-0">Conclusão</h5>
+                                    </div>
+                                    <!-- <h5 class="fw-bold mt-4">Conclusão</h5> -->
+                                    <p>Esse projeto mostra bem o papel do engenheiro de dados em transformar dados brutos em algo realmente útil. Mais do que mover arquivos de um lado para o outro, a ideia foi construir uma solução que entrega valor, com dados organizados, enriquecidos e prontos para serem usados por times de BI, ciência de dados ou produtos.</p>
+
+                                    <p><strong>O repositório com todo o código-fonte e documentação está disponível para consulta:</strong></p>
+
+                                    <a href="#alterar" target="_blank" class="btn btn-primary mt-3">Acessar Repositório no GitHub</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white py-4 mt-auto">
+    <div class="container px-5">
+        <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+            <div class="col-auto"><div class="small m-0">Copyright &copy; Alcides Gabriel 2025</div></div>
+            <div class="col-auto">
+                <a class="small" href="#!">Privacy</a>
+                <span class="mx-1">&middot;</span>
+                <a class="small" href="#!">Terms</a>
+                <span class="mx-1">&middot;</span>
+                <a class="small" href="contact.html">Contato</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/scripts.js"></script>
+
+</body>
+</html>
