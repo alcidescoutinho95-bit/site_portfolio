@@ -74,30 +74,93 @@
                                     <div class="d-flex align-items-center justify-content-between mb-4">
                                         <h5 class="text-primary fw-bolder mb-0">Arquitetura da Pipeline - Modelo em Camadas (Medalhão)</h5>
                                     </div>
-                                    <!-- <h5 class="fw-bold mt-4">Arquitetura da Pipeline - Modelo em Camadas (Medalhão)</h5> -->
-                                    <ul>
-                                        <li><strong>Raw:</strong> dados extraídos diretamente da fonte (Kaggle), armazenados no MinIO sem tratamento.</li>
-                                        <li><strong>Bronze:</strong> dados filtrados e convertidos para formato Parquet, mantendo apenas os arquivos com latitude e longitude.</li>
-                                        <li><strong>Silver:</strong> enriquecimento com os dados geográficos do Censo, associando cada ponto a cidade, condado e estado.</li>
-                                        <li><strong>Gold:</strong> união e agregação dos dados relevantes, separação por tipo de transporte e envio para o PostgreSQL.</li>
-                                    </ul>
-                                    <p class="mb-3">
-                                        Abaixo, é possível visualizar um fluxograma que representa a organização da pipeline, estruturada em camadas conforme o modelo em medalhão.
+
+                                    <p>
+                                        Quando pensamos em construir pipelines de dados, uma das arquiteturas mais conhecidas é o <strong>modelo em camadas, também chamado de Medalhão</strong>. 
+                                        A ideia é dividir o fluxo em estágios bem definidos — <strong>Raw, Bronze, Silver e Gold</strong> — de modo que cada camada tenha um propósito claro: 
+                                        desde o armazenamento dos dados brutos até a entrega final, já pronta para análise.
                                     </p>
+
+                                    <p>
+                                        Para tornar o processo mais didático, cada camada conta com um fluxograma em vídeo (feito no Draw.io), exibido abaixo em loop, ilustrando de forma visual o que acontece em cada etapa.
+                                    </p>
+
+                                    <!-- Camada RAW -->
+                                    <h6 class="fw-bold mt-4 text-secondary">Camada Raw</h6>
+                                    <p>
+                                        O objetivo da camada Raw é simples: <strong>extrair os dados da fonte e salvá-los em seu formato original no MinIO</strong>.  
+                                        Foram desenvolvidos dois notebooks:
+                                    </p>
+                                    <ul>
+                                        <li><code>extract_geospatial_data_from_census.ipynb</code>: baixa shapefiles oficiais do Censo Americano diretamente do site do Census Bureau.</li>
+                                        <li><code>extract_uber_data_from_kaggle.ipynb</code>: conecta-se à API do Kaggle e traz os datasets da Uber.</li>
+                                    </ul>
                                     <div class="text-center mb-4">
-                                        <img class="img-fluid rounded shadow" src="assets/arquitetura_pipeline.png" alt="Arquitetura da pipeline Uber NYC">
+                                        <video autoplay loop muted playsinline class="img-fluid rounded shadow">
+                                            <source src="assets/camada_raw.mp4" type="video/mp4">
+                                            Seu navegador não suporta vídeo HTML5.
+                                        </video>
                                     </div>
 
+                                    <!-- Camada BRONZE -->
+                                    <h6 class="fw-bold mt-4 text-warning">Camada Bronze</h6>
+                                    <p>
+                                        Na camada Bronze ocorre a primeira transformação: selecionar apenas os arquivos CSV relevantes e convertê-los para o formato <strong>Parquet</strong>, 
+                                        que é então enviado para o bucket Bronze.
+                                    </p>
+                                    <div class="text-center mb-4">
+                                        <video autoplay loop muted playsinline class="img-fluid rounded shadow">
+                                            <source src="assets/camada_bronze_op2.mp4" type="video/mp4">
+                                            Seu navegador não suporta vídeo HTML5.
+                                        </video>
+                                    </div>
+
+                                    <!-- Camada SILVER -->
+                                    <h6 class="fw-bold mt-4 text-info">Camada Silver</h6>
+                                    <p>
+                                        A camada Silver concentra o <strong>tratamento e enriquecimento</strong> dos dados, dividida em duas etapas principais:
+                                    </p>
+                                    <ul>
+                                        <li><code>transform_silver_uber_data.ipynb</code>: lê os dados em Parquet do bucket Bronze via PySpark, separa por tipo de transporte (Classes A a E) e gera um arquivo apenas com latitudes/longitudes únicas.</li>
+                                        <li><code>geospatial_silver_data.ipynb</code>: lê esse arquivo de coordenadas, transforma-os em dados geoespaciais com GeoPandas, cruza com os shapefiles do Censo (Raw) e retorna um DataFrame PySpark.</li>
+                                    </ul>
+                                    <div class="text-center mb-4">
+                                        <video autoplay loop muted playsinline class="img-fluid rounded shadow">
+                                            <source src="assets/camada_silver_op2.mp4" type="video/mp4">
+                                            Seu navegador não suporta vídeo HTML5.
+                                        </video>
+                                    </div>
+
+                                    <!-- Camada GOLD -->
+                                    <h6 class="fw-bold mt-4 text-warning">Camada Gold</h6>
+                                    <p>
+                                        Na camada Gold ocorre a <strong>unificação final</strong>.  
+                                        Aqui, os dados das classes de transporte são combinados com as informações geoespaciais para identificar <em>onde</em> cada corrida ocorreu.
+                                    </p>
+                                    <p>
+                                        Cada classe possui seu próprio notebook, o que facilita manutenção e análises específicas.  
+                                        Ao final, os dados são carregados em um banco PostgreSQL, estruturando um <strong>Data Warehouse pronto para consumo</strong>.
+                                    </p>
+                                    <div class="text-center mb-4">
+                                        <video autoplay loop muted playsinline class="img-fluid rounded shadow">
+                                            <source src="assets/camada_gold.mp4" type="video/mp4">
+                                            Seu navegador não suporta vídeo HTML5.
+                                        </video>
+                                    </div>
+
+
+                                    <!-- Estrutura de diretórios -->
                                     <p class="mb-3">
-                                        A estrutura do projeto também foi pensada para manter a organização dos notebooks em camadas bem definidas, seguindo o modelo em medalhão. 
-                                        Cada etapa da pipeline (extração, tratamento, enriquecimento e carga) está separada em diretórios como <code>raw</code>, <code>bronze</code>, <code>silver</code> e <code>gold</code>, facilitando a manutenção, reprocessamento e entendimento do fluxo de dados.
+                                        A estrutura do projeto também foi pensada para manter a organização dos notebooks em camadas bem definidas.  
+                                        Cada etapa da pipeline (extração, tratamento, enriquecimento e carga) está separada em diretórios <code>raw</code>, <code>bronze</code>, <code>silver</code> e <code>gold</code>, 
+                                        facilitando a manutenção, reprocessamento e entendimento do fluxo de dados.
                                     </p>
 
-                                    <!-- Imagem do VS Code com diretórios organizados -->
                                     <div class="text-center mb-4">
                                         <img class="img-fluid rounded shadow" src="assets/vscode_pipeline_structure.png" alt="Estrutura de pastas no VS Code">
                                     </div>
-                                    
+
+
                                     <div class="d-flex align-items-center justify-content-between mb-4">
                                         <h5 class="text-primary fw-bolder mb-0">Aprendizados e Desafios</h5>
                                     </div>
